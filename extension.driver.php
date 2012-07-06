@@ -8,40 +8,6 @@
 		Definition:
 	-------------------------------------------------------------------------*/
 
-		public function about() {
-			return array(
-				'name'			=> 'XML Importer',
-				'version'		=> '1.1.0',
-				'release-date'	=> '2011-11-21',
-				'author'		=> array(
-					array(
-						'name'		=> 'Nick Dunn',
-						'website'	=> 'http://nick-dunn.co.uk'
-					),
-					array(
-						'name'		=> 'Rowan Lewis',
-						'website'	=> 'http://rowanlewis.com',
-						'email'		=> 'me@rowanlewis.com'
-					),
-					array(
-						'name'		=> 'Brendan Abbott',
-						'website'	=> 'brendan@bloodbone.ws'
-					)
-				),
-				'description' => 'Import data from XML documents directly into Symphony.'
-			);
-		}
-
-		public function getSubscribedDelegates() {
-			return array(
-				array(
-					'page'		=> '/backend/',
-					'delegate'	=> 'InitaliseAdminPageHead',
-					'callback'	=> 'initializeAdmin'
-				)
-			);
-		}
-
 		public function fetchNavigation() {
 			return array(
 				array(
@@ -50,10 +16,6 @@
 					'link'		=> '/importers/'
 				)
 			);
-		}
-
-		public function initializeAdmin($context) {
-			$page = $context['parent']->Page;
 		}
 
 	/*-------------------------------------------------------------------------
@@ -166,7 +128,6 @@
 			if (!isset($new['about']['author'])) {
 				$new['about']['author'] = array(
 					'name'		=> Symphony::Engine()->Author->getFullName(),
-					'website'	=> URL,
 					'email'		=> Symphony::Engine()->Author->get('email')
 				);
 			}
@@ -223,9 +184,6 @@
 				// Author:
 				var_export($new['about']['author']['name'], true),
 
-				// Website:
-				var_export($new['about']['author']['website'], true),
-
 				// Email:
 				var_export($new['about']['author']['email'], true),
 
@@ -242,6 +200,7 @@
 				var_export($new['included-elements'], true),
 				var_export($new['namespaces'], true),
 				var_export($new['source'], true),
+				var_export($new['timeout'], true),
 				var_export($new['section'], true),
 				var_export($new['unique-field'], true)
 			);
@@ -298,5 +257,3 @@
 			return $value;
 		}
 	}
-
-?>

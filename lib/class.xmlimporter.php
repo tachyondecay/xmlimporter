@@ -65,29 +65,34 @@
 				}
 			}
 
-			$entryManager = new EntryManager(Symphony::Engine());
-			$fieldManager = $entryManager->fieldManager;
-
 			set_time_limit(900);
 			set_error_handler('handleXMLError');
 
 			$self = $this; // Fucking PHP...
 			$options = $this->options();
+			$passed = true;
 
 			if ($remote) {
 				if (!is_null($source)) {
 					$options['source'] = $source;
 				}
 
+				// Support {$root}
+				$options['source'] = str_replace('{$root}', URL, $options['source']);
+
+				// Parse timeout, default is 60
+				$timeout = isset($options['timeout']) ? (int)$options['timeout'] : 60;
+
 				// Fetch document:
 				$gateway = new Gateway();
 				$gateway->init();
 				$gateway->setopt('URL', $options['source']);
-				$gateway->setopt('TIMEOUT', 60);
+				$gateway->setopt('TIMEOUT', $timeout);
 				$data = $gateway->exec();
 
-				if (empty($data)) {
-					$this->_errors[] = __('No data to import.');
+				$info = $gateway->getInfoLast();
+				if (empty($data) || $info['http_code'] >= 400) {
+					$this->_errors[] = __('No data to import. URL returned HTTP code %d', array($info['http_code']));
 					$passed = false;
 				}
 			}
@@ -100,6 +105,13 @@
 				$this->_errors[] = __('No data to import.');
 				$passed = false;
 			}
+
+			if(!is_array($options['fields'])) {
+				$this->_errors[] = __('No field mappings have been set for this XML Importer.');
+				$passed = false;
+			}
+
+			if (!$passed) return self::__ERROR_PREPARING__;
 
 			// Load document:
 			$xml = new DOMDocument();
@@ -142,7 +154,7 @@
 			else foreach ($options['fields'] as $mapping) {
 				if ($xpath->evaluate(stripslashes($mapping['xpath'])) !== false) continue;
 
-				$field = $fieldManager->fetch($mapping['field']);
+				$field = FieldManager::fetch($mapping['field']);
 
 				$this->_errors[] = __(
 					'\'%s\' expression <code>%s</code> is invalid.', array(
@@ -196,7 +208,7 @@
 			$passed = true;
 
 			foreach ($this->_entries as &$current) {
-				$entry = $entryManager->create();
+				$entry = EntryManager::create();
 				$entry->set('section_id', $options['section']);
 				$entry->set('author_id', is_null(Symphony::Engine()->Author) ? '1' : Symphony::Engine()->Author->get('id'));
 				$entry->set('creation_date', DateTimeObj::get('Y-m-d H:i:s'));
@@ -206,7 +218,7 @@
 
 				// Map values:
 				foreach ($current['values'] as $field_id => $value) {
-					$field = $fieldManager->fetch($field_id);
+					$field = FieldManager::fetch($field_id);
 
 					// Adjust value?
 					if (method_exists($field, 'prepareImportValue')) {
@@ -259,16 +271,13 @@
 		}
 
 		public function commit() {
-			$entryManager = new EntryManager(Symphony::Engine());
 			$options = $this->options();
 			$existing = array();
 
-			$sectionManager = $entryManager->sectionManager;
-			$section = $sectionManager->fetch($options['section']);
+			$section = SectionManager::fetch($options['section']);
 
 			if ((integer)$options['unique-field'] > 0) {
-				$fieldManager = $entryManager->fieldManager;
-				$field = $fieldManager->fetch($options['unique-field']);
+				$field = FieldManager::fetch($options['unique-field']);
 
 				if (!empty($field)) foreach ($this->_entries as $index => $current) {
 					$entry = $current['entry'];
@@ -279,7 +288,7 @@
 					$field->buildDSRetrivalSQL($data, $joins, $where);
 
 					$group = $field->requiresSQLGrouping();
-					$entries = $entryManager->fetch(null, $options['section'], 1, null, $where, $joins, $group, false, null, false);
+					$entries = EntryManager::fetch(null, $options['section'], 1, null, $where, $joins, $group, false, null, false);
 
 					if (is_array($entries) && !empty($entries)) {
 						$existing[$index] = $entries[0]['id'];
@@ -323,7 +332,7 @@
 						)
 					);
 
-					$entryManager->edit($entry);
+					EntryManager::edit($entry);
 				}
 
 				// Create a new entry
@@ -340,7 +349,7 @@
 						)
 					);
 
-					$entryManager->add($entry);
+					EntryManager::add($entry);
 				}
 
 				$status = $entry->get('importer_status');
@@ -377,5 +386,3 @@
 			}
 		}
 	}
-
-?>
