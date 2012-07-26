@@ -490,6 +490,9 @@
 				)
 			));
 			$this->appendSubheading($header, $button);
+			$this->insertBreadcrumbs(array(
+				Widget::Anchor(__('XML Importers'), $this->_uri . '/importers/'),
+			));
 
 		// About --------------------------------------------------------------
 
@@ -723,9 +726,10 @@
 				$fieldset->appendChild($label);
 
 				foreach ($sections as $section) {
+					$section_duplicator = new XMLElement('div');
+					$section_duplicator->setAttribute('class', 'frame section-fields');
+					$section_duplicator->setAttribute('id', 'section-' . $section->get('id'));
 					$section_fields = new XMLElement('ol');
-					$section_fields->setAttribute('class', 'section-fields');
-					$section_fields->setAttribute('id', 'section-' . $section->get('id'));
 					$fields = $section->fetchFields();
 
 					if ($fields === false) continue;
@@ -844,7 +848,8 @@
 						$section_fields->appendChild($li);
 					}
 
-					$fieldset->appendChild($section_fields);
+					$section_duplicator->appendChild($section_fields);
+					$fieldset->appendChild($section_duplicator);
 				}
 
 				$label = Widget::Label();
