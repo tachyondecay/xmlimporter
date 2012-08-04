@@ -79,7 +79,7 @@
 				return "No review";
 			}
 			$str_replacement = array(
-				'<a rel="nofollow" target="_blank" href="http://creativecommons.org/licenses/by-nc/3.0/"><img src="http://i.creativecommons.org/l/by-nc/3.0/88x31.png" alt="Creative Commons BY-NC License" width="88" height="31" class="escapedImg"/></a>'
+				'<a href="http://creativecommons.org/licenses/by-nc/3.0/" rel="nofollow">' . "\n" . '  <img alt="Creative Commons BY-NC License" width="88" height="31" src="http://i.creativecommons.org/l/by-nc/3.0/88x31.png" /></a>'
 					=> '', // Remove the CC license
 				'class="escapedImg"' => 'class="inline"', // Change class on image tags
 				' rel="nofollow"' => '',
@@ -87,7 +87,7 @@
 			);
 
 			$preg_replacement = array(
-				"#<br/><strong>My reviews(.*?)</strong>\n.*\n#i" => '', // Remove series navigation, if present
+				"#<br /><strong>My reviews(.*?)</strong><br />(.*)<br /><br />#i" => '', // Remove series navigation, if present
 				"#<em>([A-Z]{1}\S+ [A-Za-z][^<]+)</em>#" => "<cite>$1</cite>", // Try to convert book titles to <cite> tags
 				"#<i>([A-Z]{1}\S+ [A-Za-z][^<]+)</i>#" => "<cite>$1</cite>",
 			);
