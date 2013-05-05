@@ -33,6 +33,8 @@
 			}
 			else if(strpos($img, 'goodreads.com') !== false) {
 				$img = preg_replace('#([0-9])m/#', '$1l/', $img);
+			} elseif(strpos($img, 'nocover') !== false) {
+				$img = 'http://www.goodreads.com/assets/nocover/111x148.png';
 			}
 
 			$name = explode('/', $img);
