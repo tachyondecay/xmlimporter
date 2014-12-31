@@ -38,7 +38,7 @@
 			}
 
 			$name = explode('/', $img);
-			$name = '/images/book_covers/' . array_pop($name);
+			$name = array_pop($name);
 			file_put_contents(WORKSPACE . $name, file_get_contents($img));
 
 			return $name;
