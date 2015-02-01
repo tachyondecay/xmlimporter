@@ -31,14 +31,14 @@
 			if(strpos($img,'images-amazon.com') !== false) {
 				$img = preg_replace('#_[a-z0-9]+_\.#i', '', $img);
 			}
-			else if(strpos($img, 'goodreads.com') !== false) {
+			else if(strpos($img, 'gr-assets.com') !== false) {
 				$img = preg_replace('#([0-9])m/#', '$1l/', $img);
-			} elseif(strpos($img, 'nocover') !== false) {
-				$img = 'http://www.goodreads.com/assets/nocover/111x148.png';
+			} elseif(strpos($img, 'nophoto') !== false) {
+				$img = 'http://s.gr-assets.com/assets/nophoto/book/111x148.png';
 			}
 
 			$name = explode('/', $img);
-			$name = array_pop($name);
+			$name = '/images/book_covers/' . array_pop($name);
 			file_put_contents(WORKSPACE . $name, file_get_contents($img));
 
 			return $name;
